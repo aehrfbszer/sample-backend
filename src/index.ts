@@ -87,7 +87,14 @@ class App<State = Record<string, unknown>> {
     if (!this.#routes.has(path)) {
       this.#routes.set(path, new Map());
     }
-    this.#routes.get(path)?.set(method, handler as Handler<unknown, State>);
+    const map = this.#routes.get(path)!;
+    if (map.has(method)) {
+      console.warn(
+        `Warning: Overriding existing handler for ${method} ${path}`,
+      );
+      throw new Error(`Handler for ${method} ${path} already exists`);
+    }
+    map.set(method, handler as Handler<unknown, State>);
   }
 
   async fetch(req: Request): Promise<Response> {
